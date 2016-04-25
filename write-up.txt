@@ -1,3 +1,12 @@
 Dataset Links:
+http://norvig.com/ngrams/ (list of dataset files)
+http://norvig.com/spell-correct.html (how to implement a basic spellchecker)
+https://datahub.io/dataset/beautiful-data-natural-language-corpus-and-code (download for files)
+
 Dataset Description:
+A list of 29,136 English words and their frequencies,
+drawn from the Google Web Trillion Word Corpus
+
 Significant table attributes:
+word (text)
+frequency (integer)
