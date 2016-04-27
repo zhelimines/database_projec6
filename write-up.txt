@@ -1,7 +1,17 @@
 Dataset Links:
 http://norvig.com/ngrams/ (list of dataset files)
+
 http://norvig.com/spell-correct.html (how to implement a basic spellchecker)
+
 https://datahub.io/dataset/beautiful-data-natural-language-corpus-and-code (download for files)
+
+ota.ox.ac.uk/headers/0643.xml (spelling error corpus)
+
+aspell.net/test/ (possibly better spelling error corpus)
+
+www.ngrams.info/download_coca.asp (corpus of contemporary english, 2-, 3-, 4-, and 5-grams)
+
+www.postgresql.org/docs/9.5/interactive/textsearch.html (full text search if we want to use stemming or something)
 
 Dataset Description:
 A list of 29,136 English words and their frequencies,
