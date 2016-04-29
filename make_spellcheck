@@ -1,0 +1,5 @@
+#!/bin/bash
+
+javac SpellCheck.java
+jar cvf SpellCheck.jar SpellCheck.class
+java SpellCheck $*
