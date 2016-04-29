@@ -25,6 +25,8 @@ public class SpellCheck {
 	    return;
 	}
 
+	System.out.println("verbose: " + verbose);
+
 	// Get database login info
 	Class.forName("org.postgresql.Driver");
 	String connectString = "jdbc:postgresql://flowers.mines.edu/csci403";
