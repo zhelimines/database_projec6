@@ -12,7 +12,7 @@ import java.util.HashMap;
  *
  * Before performing the correction process, the program prompts the
  * user for their flowers database login information. This is because
- * the program uses our group's 5-gram dataset to train the spell checker.
+n * the program uses our group's 5-gram dataset to train the spell checker.
  */
 
 public class SpellCheck {
@@ -45,44 +45,105 @@ public class SpellCheck {
 	    return;
 	}
 
-	// Train spellchecker from data
+	// Train spellchecker from data, populating frequencies HashMap
 	trainFromDatabase();
 
 	// Process the given file
+	processFile(inputFile);
     }
 
     public static void trainFromDatabase() {
 	try {
-	    String query = "SELECT freq, word1, word2, word3, word4, word5 FROM ngrams";
+	    String query1 = "SELECT sum(freq) as f, lower(word1) as w FROM ngrams GROUP BY w ORDER BY w";
 	    String word;
 	    int freq;
 	    Statement s = DB.createStatement();
-	    ResultSet results = s.executeQuery(query);
+	    ResultSet results = s.executeQuery(query1);
 	    // Loop through each tuple in database
 	    while (results.next()) {
-		word = results.getString("word1");
-		freq = results.getInt("freq");
-		if (word == null) System.out.println("word");
-		if (freq == null) System.out.println("freq");
-		frequencies.put(word, frequencies.get(word) + freq);
+		word = results.getString("w");
+		freq = results.getInt("f");
 
-		word = results.getString("word2");
-		frequencies.put(word, frequencies.get(word) + freq);
+		// TODO: debug
+		if (word.equals("zoo"))
+		    System.out.println(freq);
 
-		word = results.getString("word3");
-		frequencies.put(word, frequencies.get(word) + freq);
-
-		word = results.getString("word4");
-		frequencies.put(word, frequencies.get(word) + freq);
-
-		word = results.getString("word5");
-		frequencies.put(word, frequencies.get(word) + freq);
+		if (!frequencies.containsKey(word))
+		    frequencies.put(word, 0);
+		else
+		    frequencies.put(word, frequencies.get(word) + freq);
 	    }
 
-	    System.out.println(frequencies.size());
+	    String query2 = "SELECT sum(freq) as f, lower(word2) as w FROM ngrams GROUP BY w ORDER BY w";
+	    results = s.executeQuery(query2);
+	    while (results.next()) {
+		word = results.getString("w");
+		freq = results.getInt("f");
+
+		// TODO: debug
+		if (word.equals("zoo"))
+		    System.out.println(freq);
+
+		if (!frequencies.containsKey(word))
+		    frequencies.put(word, 0);
+		else
+		    frequencies.put(word, frequencies.get(word) + freq);
+	    }
+
+	    String query3 = "SELECT sum(freq) as f, lower(word3) as w FROM ngrams GROUP BY w ORDER BY w";
+	    results = s.executeQuery(query3);
+	    while (results.next()) {
+		word = results.getString("w");
+		freq = results.getInt("f");
+
+		// TODO: debug
+		if (word.equals("zoo"))
+		    System.out.println(freq);
+
+		if (!frequencies.containsKey(word))
+		    frequencies.put(word, 0);
+		else
+		    frequencies.put(word, frequencies.get(word) + freq);
+	    }
+
+	    String query4 = "SELECT sum(freq) as f, lower(word4) as w FROM ngrams GROUP BY w ORDER BY w";
+	    results = s.executeQuery(query4);
+	    while (results.next()) {
+		word = results.getString("w");
+		freq = results.getInt("f");
+
+		// TODO: debug
+		if (word.equals("zoo"))
+		    System.out.println(freq);
+
+		if (!frequencies.containsKey(word))
+		    frequencies.put(word, 0);
+		else
+		    frequencies.put(word, frequencies.get(word) + freq);
+	    }
+
+	    String query5 = "SELECT sum(freq) as f, lower(word5) as w FROM ngrams GROUP BY w ORDER BY w";
+	    results = s.executeQuery(query5);
+	    while (results.next()) {
+		word = results.getString("w");
+		freq = results.getInt("f");
+
+		// TODO: debug
+		if (word.equals("zoo"))
+		    System.out.println(freq);
+
+		if (!frequencies.containsKey(word))
+		    frequencies.put(word, 0);
+		else
+		    frequencies.put(word, frequencies.get(word) + freq);
+	    }
+
 	} catch (SQLException e) {
 	    System.err.println("database error: " + e);
 	}
+    }
+
+    public static void processFile(File inputFile) {
     }
 
     public static boolean parseFlags(String[] args) {
