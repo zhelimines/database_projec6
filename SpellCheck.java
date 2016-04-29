@@ -1,6 +1,7 @@
 import java.sql.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 
 /* SpellCheck.java
  * This program accepts as its sole argument a text file containing
@@ -18,6 +19,7 @@ public class SpellCheck {
     public static Connection DB;
     public static boolean verbose = false;
     public static File inputFile;
+    public static HashMap<String, Integer> frequencies = new HashMap<String, Integer>();
 
     public static void main(String[] args) throws ClassNotFoundException {
 	// Check command line args
@@ -44,8 +46,43 @@ public class SpellCheck {
 	}
 
 	// Train spellchecker from data
+	trainFromDatabase();
 
 	// Process the given file
+    }
+
+    public static void trainFromDatabase() {
+	try {
+	    String query = "SELECT freq, word1, word2, word3, word4, word5 FROM ngrams";
+	    String word;
+	    int freq;
+	    Statement s = DB.createStatement();
+	    ResultSet results = s.executeQuery(query);
+	    // Loop through each tuple in database
+	    while (results.next()) {
+		word = results.getString("word1");
+		freq = results.getInt("freq");
+		if (word == null) System.out.println("word");
+		if (freq == null) System.out.println("freq");
+		frequencies.put(word, frequencies.get(word) + freq);
+
+		word = results.getString("word2");
+		frequencies.put(word, frequencies.get(word) + freq);
+
+		word = results.getString("word3");
+		frequencies.put(word, frequencies.get(word) + freq);
+
+		word = results.getString("word4");
+		frequencies.put(word, frequencies.get(word) + freq);
+
+		word = results.getString("word5");
+		frequencies.put(word, frequencies.get(word) + freq);
+	    }
+
+	    System.out.println(frequencies.size());
+	} catch (SQLException e) {
+	    System.err.println("database error: " + e);
+	}
     }
 
     public static boolean parseFlags(String[] args) {
