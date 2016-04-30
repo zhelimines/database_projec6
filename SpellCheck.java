@@ -54,7 +54,7 @@ public class SpellCheck {
 
     public static void trainFromDatabase() {
 	try {
-	    String query1 = "SELECT sum(freq) as f, lower(word1) as w FROM ngrams GROUP BY w ORDER BY w";
+	    String query1 = "SELECT sum(freq) as f, lower(word1) as w FROM ngrams GROUP BY word1";
 	    String word;
 	    int freq;
 	    Statement s = DB.createStatement();
@@ -63,81 +63,58 @@ public class SpellCheck {
 	    while (results.next()) {
 		word = results.getString("w");
 		freq = results.getInt("f");
-
-		// TODO: debug
-		if (word.equals("zoo"))
-		    System.out.println(freq);
-
 		if (!frequencies.containsKey(word))
-		    frequencies.put(word, 0);
+		    frequencies.put(word, freq);
 		else
 		    frequencies.put(word, frequencies.get(word) + freq);
 	    }
 
-	    String query2 = "SELECT sum(freq) as f, lower(word2) as w FROM ngrams GROUP BY w ORDER BY w";
+	    String query2 = "SELECT sum(freq) as f, lower(word2) as w FROM ngrams GROUP BY word2";
 	    results = s.executeQuery(query2);
 	    while (results.next()) {
 		word = results.getString("w");
 		freq = results.getInt("f");
-
-		// TODO: debug
-		if (word.equals("zoo"))
-		    System.out.println(freq);
-
 		if (!frequencies.containsKey(word))
-		    frequencies.put(word, 0);
+		    frequencies.put(word, freq);
 		else
 		    frequencies.put(word, frequencies.get(word) + freq);
 	    }
 
-	    String query3 = "SELECT sum(freq) as f, lower(word3) as w FROM ngrams GROUP BY w ORDER BY w";
+	    String query3 = "SELECT sum(freq) as f, lower(word3) as w FROM ngrams GROUP BY word3";
 	    results = s.executeQuery(query3);
 	    while (results.next()) {
 		word = results.getString("w");
 		freq = results.getInt("f");
-
-		// TODO: debug
-		if (word.equals("zoo"))
-		    System.out.println(freq);
-
 		if (!frequencies.containsKey(word))
-		    frequencies.put(word, 0);
+		    frequencies.put(word, freq);
 		else
 		    frequencies.put(word, frequencies.get(word) + freq);
 	    }
 
-	    String query4 = "SELECT sum(freq) as f, lower(word4) as w FROM ngrams GROUP BY w ORDER BY w";
+	    String query4 = "SELECT sum(freq) as f, lower(word4) as w FROM ngrams GROUP BY word4";
 	    results = s.executeQuery(query4);
 	    while (results.next()) {
 		word = results.getString("w");
 		freq = results.getInt("f");
-
-		// TODO: debug
-		if (word.equals("zoo"))
-		    System.out.println(freq);
-
 		if (!frequencies.containsKey(word))
-		    frequencies.put(word, 0);
+		    frequencies.put(word, freq);
 		else
 		    frequencies.put(word, frequencies.get(word) + freq);
 	    }
 
-	    String query5 = "SELECT sum(freq) as f, lower(word5) as w FROM ngrams GROUP BY w ORDER BY w";
+	    String query5 = "SELECT sum(freq) as f, lower(word5) as w FROM ngrams GROUP BY word5";
 	    results = s.executeQuery(query5);
 	    while (results.next()) {
 		word = results.getString("w");
 		freq = results.getInt("f");
-
-		// TODO: debug
-		if (word.equals("zoo"))
-		    System.out.println(freq);
-
 		if (!frequencies.containsKey(word))
-		    frequencies.put(word, 0);
+		    frequencies.put(word, freq);
 		else
 		    frequencies.put(word, frequencies.get(word) + freq);
 	    }
 
+	    // TODO: debug
+	    //System.out.println(frequencies.get("zoo"));
 	} catch (SQLException e) {
 	    System.err.println("database error: " + e);
 	}
