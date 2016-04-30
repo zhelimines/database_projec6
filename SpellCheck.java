@@ -2,6 +2,8 @@ import java.sql.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /* SpellCheck.java
  * This program accepts as its sole argument a text file containing
@@ -148,4 +150,65 @@ public class SpellCheck {
 
 	return true;
     }
+
+	public static TreeSet<String> getTargets(String str, int maxDistance){
+		if(maxDistance < 1){
+			return null;
+		}
+		
+		str = str.trim();
+		str = str.toLowerCase();
+
+		TreeSet<String> targetSet = new TreeSet<>();
+
+		// Generate targets
+		for(int i = 0; i <= str.length(); i++){
+			// Inserts
+			char firstChar = 'a';
+			for(int j = 0; j < 26; j++){
+				if( i < str.length() ) {
+					targetSet.add( str.substring(0,i) +  (char) (firstChar + j) + str.substring(i)); 
+				} else {
+					targetSet.add( str.substring(0) + (char) (firstChar + j) );
+				}
+			}
+			
+			// Only inserts use index == string length
+			if(i == str.length())
+				break;
+
+			// Deletes
+			if(i == 0 && str.length() > 1){
+				targetSet.add( str.substring(1));
+			} else if(i == str.length() - 1){
+				targetSet.add( str.substring(0, str.length() - 1) );
+			} else {
+				targetSet.add( str.substring(0,i) + str.substring(i+1) );
+			}
+
+			// Replaces
+			for(int j = 0; j < 26; j++){
+				if(str.charAt(i) == (char) (firstChar + j))
+					continue;
+
+				targetSet.add( str.substring(0,i) + (char) (firstChar + j) + str.substring(i+1) ); 
+			}
+
+
+			// Transposes
+			if( i < str.length() - 1 ){
+				targetSet.add( str.substring(0,i) + str.charAt(i+1) + str.charAt(i) + str.substring(i+2));
+			}
+		}
+
+		if(maxDistance == 1)
+			return new TreeSet<String>(targetSet);
+		
+		TreeSet<String> returnSet = new TreeSet<>(targetSet);
+		for(String s : targetSet){
+			returnSet.addAll( getTargets( s, maxDistance - 1));
+		}
+
+		return returnSet;
+	}
 }
