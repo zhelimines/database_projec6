@@ -1,5 +1,6 @@
 #!/bin/bash
 
+export CLASSPATH=$(pwd)/postgresql-9.4.1208.jre7.jar:$(pwd)/SpellCheck.jar:
 javac SpellCheck.java
 jar cvf SpellCheck.jar SpellCheck.class
 java SpellCheck $*
