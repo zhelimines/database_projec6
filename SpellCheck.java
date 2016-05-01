@@ -26,6 +26,8 @@ public class SpellCheck {
     public static File inputFile;
     public static HashMap<String, Integer> frequencies = new HashMap<String, Integer>();
 
+    public static final int MAX_EDIT_DISTANCE = 1;
+
     public static void main(String[] args) throws ClassNotFoundException {
 	// Check command line args
 	if (!parseFlags(args)) {
@@ -51,16 +53,7 @@ public class SpellCheck {
 	}
 
 	// Train spellchecker from data, populating frequencies HashMap
-	System.out.println("starting training");
 	trainFromDatabase();
-	System.out.println("finished training");	
-	// TODO: testing
-/*
-	HashSet<String> targets = getTargets("test", 2);
-	System.out.println("TARGETS");
-	System.out.println(targets);*/
-	System.out.println("starting correction");
-	System.out.println(getCorrection(getTargets("corect", 2), "corect"));
 
 	// Process the given file
 	processFile(inputFile);
@@ -135,23 +128,30 @@ public class SpellCheck {
     }
 
     public static void processFile(File inputFile) {
+	int numCorrect = 0;
+	int numTotal = 0;
 	try {
 	    BufferedReader br = new BufferedReader(new FileReader(inputFile));
 	    String line;
 	    String corrected;
 	    String[] columns = new String[4];
 	    while ((line = br.readLine()) != null) {
-		columns = line.split(" ");
-		corrected = getCorrection(getTargets(columns[0], 2), columns[0]);
-		if (corrected.equals(columns[1]))
-		    System.out.println("correct");
-		else 
-		    System.out.println("wrong");
-
+		numTotal++;
+		columns = line.split("\t");
+		corrected = getCorrection(getTargets(columns[0], MAX_EDIT_DISTANCE), columns[0]);
+		if (corrected.equals(columns[1])) {
+		    if (verbose)
+			System.out.println(String.format("%-15s\t%1s\t%s", columns[0], "O", corrected));
+		    numCorrect++;
+		}
+		else if (verbose)
+		    System.out.println(String.format("%-15s\t%1s\t%-15s\t%s", columns[0], "X", corrected, columns[1]));
 	    }
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
+
+	System.out.println(numCorrect + " correct out of " + numTotal);
     }
 
     public static String getCorrection(HashSet<String> possibleCorrections, String original) {
