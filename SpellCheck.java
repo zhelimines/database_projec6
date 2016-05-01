@@ -4,6 +4,9 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 /* SpellCheck.java
  * This program accepts as its sole argument a text file containing
@@ -14,8 +17,8 @@ import java.util.List;
  *
  * Before performing the correction process, the program prompts the
  * user for their flowers database login information. This is because
-n * the program uses our group's 5-gram dataset to train the spell checker.
- */
+ n * the program uses our group's 5-gram dataset to train the spell checker.
+*/
 
 public class SpellCheck {
     public static Connection DB;
@@ -48,7 +51,16 @@ public class SpellCheck {
 	}
 
 	// Train spellchecker from data, populating frequencies HashMap
+	System.out.println("starting training");
 	trainFromDatabase();
+	System.out.println("finished training");	
+	// TODO: testing
+/*
+	HashSet<String> targets = getTargets("test", 2);
+	System.out.println("TARGETS");
+	System.out.println(targets);*/
+	System.out.println("starting correction");
+	System.out.println(getCorrection(getTargets("corect", 2), "corect"));
 
 	// Process the given file
 	processFile(inputFile);
@@ -123,6 +135,35 @@ public class SpellCheck {
     }
 
     public static void processFile(File inputFile) {
+	try {
+	    BufferedReader br = new BufferedReader(new FileReader(inputFile));
+	    String line;
+	    String corrected;
+	    String[] columns = new String[4];
+	    while ((line = br.readLine()) != null) {
+		columns = line.split(" ");
+		corrected = getCorrection(getTargets(columns[0], 2), columns[0]);
+		if (corrected.equals(columns[1]))
+		    System.out.println("correct");
+		else 
+		    System.out.println("wrong");
+
+	    }
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+    }
+
+    public static String getCorrection(HashSet<String> possibleCorrections, String original) {
+	int max = -1;
+	String bestCorrection = original;
+	for (String s : possibleCorrections)
+	    if (frequencies.get(s) > max) {
+		max = frequencies.get(s);
+		bestCorrection = s;
+	    }
+
+	return bestCorrection;
     }
 
     public static boolean parseFlags(String[] args) {
@@ -151,64 +192,79 @@ public class SpellCheck {
 	return true;
     }
 
-	public static TreeSet<String> getTargets(String str, int maxDistance){
-		if(maxDistance < 1){
-			return null;
-		}
-		
-		str = str.trim();
-		str = str.toLowerCase();
-
-		TreeSet<String> targetSet = new TreeSet<>();
-
-		// Generate targets
-		for(int i = 0; i <= str.length(); i++){
-			// Inserts
-			char firstChar = 'a';
-			for(int j = 0; j < 26; j++){
-				if( i < str.length() ) {
-					targetSet.add( str.substring(0,i) +  (char) (firstChar + j) + str.substring(i)); 
-				} else {
-					targetSet.add( str.substring(0) + (char) (firstChar + j) );
-				}
-			}
-			
-			// Only inserts use index == string length
-			if(i == str.length())
-				break;
-
-			// Deletes
-			if(i == 0 && str.length() > 1){
-				targetSet.add( str.substring(1));
-			} else if(i == str.length() - 1){
-				targetSet.add( str.substring(0, str.length() - 1) );
-			} else {
-				targetSet.add( str.substring(0,i) + str.substring(i+1) );
-			}
-
-			// Replaces
-			for(int j = 0; j < 26; j++){
-				if(str.charAt(i) == (char) (firstChar + j))
-					continue;
-
-				targetSet.add( str.substring(0,i) + (char) (firstChar + j) + str.substring(i+1) ); 
-			}
-
-
-			// Transposes
-			if( i < str.length() - 1 ){
-				targetSet.add( str.substring(0,i) + str.charAt(i+1) + str.charAt(i) + str.substring(i+2));
-			}
-		}
-
-		if(maxDistance == 1)
-			return new TreeSet<String>(targetSet);
-		
-		TreeSet<String> returnSet = new TreeSet<>(targetSet);
-		for(String s : targetSet){
-			returnSet.addAll( getTargets( s, maxDistance - 1));
-		}
-
-		return returnSet;
+    public static HashSet<String> getTargets(String str, int maxDistance){
+	String testStr;
+	if(maxDistance < 1){
+	    return null;
 	}
+		
+	str = str.trim();
+	str = str.toLowerCase();
+
+	HashSet<String> targetSet = new HashSet<>();
+
+	// Generate targets
+	for(int i = 0; i <= str.length(); i++){
+	    // Inserts
+	    char firstChar = 'a';
+	    for(int j = 0; j < 26; j++){
+		if( i < str.length() ) {
+		    testStr = str.substring(0,i) +  (char) (firstChar + j) + str.substring(i);
+		    if (frequencies.containsKey(testStr))
+			targetSet.add(testStr);
+		} else {
+		    testStr = str.substring(0) + (char) (firstChar + j);
+		    if (frequencies.containsKey(testStr))
+			targetSet.add(testStr);
+		}
+	    }
+			
+	    // Only inserts use index == string length
+	    if(i == str.length())
+		break;
+
+	    // Deletes
+	    if(i == 0 && str.length() > 1){
+		testStr = str.substring(1);
+		if (frequencies.containsKey(testStr))
+		    targetSet.add(testStr);
+	    } else if(i == str.length() - 1){
+		testStr = str.substring(0, str.length() - 1);
+		if (frequencies.containsKey(testStr))
+		    targetSet.add(testStr);
+	    } else {
+		testStr = str.substring(0, i) + str.substring(i + 1);
+		if (frequencies.containsKey(testStr))
+		    targetSet.add(testStr);
+	    }
+
+	    // Replaces
+	    for(int j = 0; j < 26; j++){
+		if(str.charAt(i) == (char) (firstChar + j))
+		    continue;
+
+		testStr = str.substring(0,i) + (char) (firstChar + j) + str.substring(i+1); 
+		if (frequencies.containsKey(testStr))
+		    targetSet.add(testStr);
+	    }
+
+
+	    // Transposes
+	    if( i < str.length() - 1 ){
+		testStr =  str.substring(0,i) + str.charAt(i+1) + str.charAt(i) + str.substring(i+2);
+		if (frequencies.containsKey(testStr)) 
+		    targetSet.add(testStr);
+	    }
+	}
+
+	if(maxDistance == 1)
+	    return new HashSet<String>(targetSet);
+		
+	HashSet<String> returnSet = new HashSet<>(targetSet);
+	for(String s : targetSet){
+	    returnSet.addAll( getTargets( s, maxDistance - 1));
+	}
+
+	return returnSet;
+    }
 }
