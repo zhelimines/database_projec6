@@ -1,3 +1,4 @@
+
 import java.sql.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,6 +8,9 @@ import java.util.List;
 import java.util.HashSet;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Arrays;
 
 /* SpellCheck.java
  * This program accepts as its sole argument a text file containing
@@ -26,6 +30,7 @@ public class SpellCheck {
     public static boolean interactive = false;
     public static File inputFile;
     public static HashMap<String, Integer> frequencies = new HashMap<String, Integer>();
+    public static String[] punctuation = new String[]{",", ".", "?", "&", "-", "!", ";", "\'", "\""};
 
     public static final int MAX_EDIT_DISTANCE = 1;
 
@@ -175,11 +180,14 @@ public class SpellCheck {
     public static String getCorrection(HashSet<String> possibleCorrections, String original) {
         int max = -1;
         String bestCorrection = original;
-        for (String s : possibleCorrections)
+        for (String s : possibleCorrections) {
+	    if (frequencies.get(s) == null) return s;    // only occurs when the word shouldn't be corrected
+
             if (frequencies.get(s) > max) {
                 max = frequencies.get(s);
                 bestCorrection = s;
             }
+	}
 
         return bestCorrection;
     }
@@ -225,6 +233,12 @@ public class SpellCheck {
      * are present in the frequencies HashMap.
      */
     public static HashSet<String> getTargets(String str, int maxDistance){
+        if (str.length() <= 1 || frequencies.containsKey(str)) {
+	    HashSet<String> ret = new HashSet<String>();
+	    ret.add(str);
+	    return ret;
+	}
+
         String testStr;
         if(maxDistance < 1){
             return null;
@@ -305,13 +319,40 @@ public class SpellCheck {
      * prints the corrected version of that word.
      */
     public static void handleInteractive() {
+	String outStr = "";
         while (true) {
-            System.out.print("Enter the word or -1 to quit: ");
+            System.out.print("Enter words or -1 to quit: ");
             String input = System.console().readLine().trim();
             if (input.equals("-1")) return;
-
-            String corrected = getCorrection(getTargets(input, MAX_EDIT_DISTANCE), input);
-            System.out.println("Result: " + corrected + "\n");
-        }
+            /*
+              String corrected = 
+              System.out.println("Result: " + corrected + "\n");*/
+            for (String s : tokenize(input)) {
+		String st = s.trim();
+		if (Arrays.asList(punctuation).contains(st)) {
+		    outStr = outStr.trim();
+		}
+		outStr += getCorrection(getTargets(st, MAX_EDIT_DISTANCE), st) + " ";
+	    }
+	    System.out.println(outStr);
+	    outStr = "";
+	}
     }
+
+
+/**
+ * Tokenizes the given string into individual words.
+ */
+public static ArrayList<String> tokenize(String s) {
+    String punctRegex = "[\\&\\.\\/\\,\\-\\;\\!\\?]";
+    String wordRegex = "\\w*";
+    Pattern p = Pattern.compile(punctRegex + "|" + wordRegex);
+    Matcher m = p.matcher(s);
+    ArrayList<String> ret = new ArrayList<String>();
+    while (m.find()) {
+        ret.add(m.group());
+    }
+
+    return ret;
+}
 }
